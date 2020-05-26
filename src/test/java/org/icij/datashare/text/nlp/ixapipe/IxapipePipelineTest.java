@@ -1,12 +1,13 @@
 package org.icij.datashare.text.nlp.ixapipe;
 
 import org.icij.datashare.PropertiesProvider;
+import org.icij.datashare.text.DocumentBuilder;
+import org.icij.datashare.text.NamedEntity;
 import org.icij.datashare.text.nlp.AbstractModels;
-import org.icij.datashare.text.nlp.Annotations;
-import org.icij.datashare.text.nlp.NlpStage;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -16,7 +17,7 @@ import static org.icij.datashare.text.nlp.Pipeline.Property.STAGES;
 public class IxapipePipelineTest {
     private IxapipePipeline ixapipePipeline;
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         Properties props = new Properties();
         props.setProperty(STAGES.getName(), "POS,NER");
         AbstractModels.syncModels(false);
@@ -34,10 +35,9 @@ public class IxapipePipelineTest {
     @Test
     public void test_process() throws Exception {
         ixapipePipeline.initialize(ITALIAN);
-        Annotations annotations = ixapipePipeline.process("italiano contenuto de Firenze", "docId", ITALIAN);
+        List<NamedEntity> namedEntities = ixapipePipeline.process(DocumentBuilder.createDoc("docId").with("Grazie signor Foo Bar").build());
 
-        assertThat(annotations).isNotNull();
-        assertThat(annotations.get(NlpStage.TOKEN).size()).isEqualTo(4);
-        assertThat(annotations.get(NlpStage.NER).size()).isEqualTo(1);
+        assertThat(namedEntities).isNotNull();
+        assertThat(namedEntities.size()).isEqualTo(0);
     }
 }

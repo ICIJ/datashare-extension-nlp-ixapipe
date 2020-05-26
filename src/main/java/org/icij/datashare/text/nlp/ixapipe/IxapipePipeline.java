@@ -9,6 +9,7 @@ import ixa.kaflib.KAFDocument.LinguisticProcessor;
 import ixa.kaflib.Term;
 import ixa.kaflib.WF;
 import org.icij.datashare.PropertiesProvider;
+import org.icij.datashare.text.Document;
 import org.icij.datashare.text.Language;
 import org.icij.datashare.text.NamedEntity;
 import org.icij.datashare.text.nlp.AbstractPipeline;
@@ -19,11 +20,11 @@ import org.icij.datashare.text.nlp.Pipeline;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.StringReader;
 import java.util.*;
 import java.util.function.BiFunction;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.icij.datashare.text.Language.*;
 import static org.icij.datashare.text.nlp.NlpStage.*;
 
@@ -93,51 +94,17 @@ public class IxapipePipeline extends AbstractPipeline {
     }
 
     @Override
-    public Annotations process(String content, String docId, Language language) {
-        Annotations annotations = new Annotations(docId, getType(), language);
+    public List<NamedEntity> process(Document document) {
+        Language language = document.getLanguage();
+        Annotations annotations = new Annotations(document.getId(), getType(), language);
         // KAF document annotated by IXAPIPE annotators
         KAFDocument kafDocument = new KAFDocument(language.toString(), KAF_VERSION);
-
-        // tokenize( input )
-        LOGGER.info("tokenizing for " + language.toString());
-        if (!tokenize(new StringReader(content), kafDocument, docId, language))
-            return annotations;
-
-        // pos-tag( tokenize( input ) )
-        LOGGER.info("POS-tagging for " + language.toString());
-        if (!postag(kafDocument, docId, language))
-            return annotations;
-
-        // Feed annotations with tokens and pos
-        for (int s = kafDocument.getFirstSentence(); s <= kafDocument.getNumSentences(); s++) {
-            List<Term> sentenceTerms = kafDocument.getSentenceTerms(s);
-            for (Term term : sentenceTerms) {
-                WF wfBegin = term.getWFs().get(0);
-                WF wfEnd = term.getWFs().get(term.getWFs().size() - 1);
-                int tokenBegin = wfBegin.getOffset();
-                int tokenEnd = wfEnd.getOffset() + wfEnd.getLength();
-                annotations.add(TOKEN, tokenBegin, tokenEnd);
-                if (targetStages.contains(POS)) {
-                    String posTag = term.getPos();
-                    annotations.add(POS, tokenBegin, tokenEnd);
-                }
-            }
-            if (sentenceTerms.size() > 0) {
-                Term termBegin = sentenceTerms.get(0);
-                Term termEnd = sentenceTerms.get(sentenceTerms.size() - 1);
-                WF wfBegin = termBegin.getWFs().get(0);
-                WF wfEnd = termEnd.getWFs().get(termEnd.getWFs().size() - 1);
-                int sentenceBegin = wfBegin.getOffset();
-                int sentenceEnd = wfEnd.getOffset() + wfEnd.getLength();
-                annotations.add(SENTENCE, sentenceBegin, sentenceEnd);
-            }
-        }
 
         // ner( pos-tag( tokenize( input ) ) )
         if (targetStages.contains(NER)) {
             LOGGER.info("name-finding for " + language.toString());
-            if (!recognize(kafDocument, docId, language))
-                return annotations;
+            if (!recognize(kafDocument, document.getId(), language))
+                return emptyList();;
 
             // Feed annotations with ne
             for (Entity entity : kafDocument.getEntities()) {
@@ -153,7 +120,7 @@ public class IxapipePipeline extends AbstractPipeline {
             }
         }
 
-        return annotations;
+        return NamedEntity.allFrom(document.getContent(), annotations);
     }
 
     private boolean tokenize(Reader reader, KAFDocument kafDocument, String hash, Language language) {
@@ -196,6 +163,9 @@ public class IxapipePipeline extends AbstractPipeline {
         try {
             newLp.setBeginTimestamp();
             final IxaAnnotate<eus.ixa.ixa.pipe.nerc.Annotate> ixaAnnotate = IxaNerModels.getInstance().get(language);
+            if (ixaAnnotate == null) {
+                return false;
+            }
             ixaAnnotate.annotate.annotateNEs(kafDocument);
             newLp.setEndTimestamp();
             return true;
