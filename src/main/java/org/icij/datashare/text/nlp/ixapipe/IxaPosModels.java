@@ -59,12 +59,12 @@ public class IxaPosModels extends IxaModels<eus.ixa.ixa.pipe.pos.Annotate> {
     private IxaPosModels() { super(NlpStage.POS);}
 
     @Override
-    protected IxaAnnotate<eus.ixa.ixa.pipe.pos.Annotate> loadModelFile(Language language, ClassLoader loader) throws IOException {
+    protected IxaAnnotate<eus.ixa.ixa.pipe.pos.Annotate> loadModelFile(Language language) throws IOException {
         final Path path = getModelsBasePath(language).resolve(MODEL_NAMES.get(language));
-        final URL resource = createResourceOrThrowIoEx(path, loader);
+        final URL resource = createResourceOrThrowIoEx(path);
 
         final Path lemmaPath = getModelsBasePath(language).resolve(lemmaModelNames.get(language));
-        final URL lemmaResource = createResourceOrThrowIoEx(lemmaPath, loader);
+        final URL lemmaResource = createResourceOrThrowIoEx(lemmaPath);
 
         LOGGER.info("loading POS annotator " + lemmaPath);
         boolean dictag = false;

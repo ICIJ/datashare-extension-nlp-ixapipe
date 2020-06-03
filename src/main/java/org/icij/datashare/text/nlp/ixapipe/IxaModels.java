@@ -17,8 +17,8 @@ abstract class IxaModels<T> extends AbstractModels<IxaAnnotate<T>> {
     @Override
     protected String getVersion() { return VERSION;}
 
-    URL createResourceOrThrowIoEx(Path path, ClassLoader loader) throws IOException {
-        final URL resource = loader.getResource(path.toString());
+    URL createResourceOrThrowIoEx(Path path) throws IOException {
+        final URL resource = ClassLoader.getSystemResource(path.toString());
         if (resource == null) {
             throw new IOException("cannot load resource from classpath " + path);
         }

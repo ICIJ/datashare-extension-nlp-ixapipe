@@ -41,9 +41,9 @@ public class IxaNerModels extends IxaModels<eus.ixa.ixa.pipe.nerc.Annotate> {
     private IxaNerModels() { super(NlpStage.NER);}
 
     @Override
-    protected IxaAnnotate<eus.ixa.ixa.pipe.nerc.Annotate> loadModelFile(Language language, ClassLoader loader) throws IOException {
+    protected IxaAnnotate<eus.ixa.ixa.pipe.nerc.Annotate> loadModelFile(Language language) throws IOException {
         final Path path = getModelsBasePath(language).resolve(MODEL_NAMES.get(language));
-        final URL resource = createResourceOrThrowIoEx(path, loader);
+        final URL resource = createResourceOrThrowIoEx(path);
 
         Properties properties = IxaNerModels.nerAnnotatorProperties(language,
                 resource.getPath(),
