@@ -170,6 +170,11 @@
                                     <artifact>*:*</artifact>
                                     <excludes>
                                         <exclude>org/jdom2/xpath/jaxen/**</exclude>
+                                        <exclude>opennlp/tools/util/ext/**</exclude>
+                                        <exclude>opennlp/tools/lemmatizer/SimpleLemmatizer*</exclude>
+                                        <exclude>com/google/common/collect/ComputingConcurrentHashMap*</exclude>
+                                        <exclude>com/google/common/collect/EmptyImmutableSortedMap*</exclude>
+                                        <exclude>com/google/common/collect/RegularImmutableSortedMap*</exclude>
                                     </excludes>
                                 </filter>
                             </filters>
