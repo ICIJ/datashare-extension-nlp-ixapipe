@@ -61,7 +61,7 @@
         <jackson.version>2.10.2</jackson.version>
         <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
         <ixapipe.version>1.6.0</ixapipe.version>
-        <opennlp.version>1.6.0</opennlp.version>
+        <opennlp.version>1.8.2</opennlp.version>
         <guice.version>4.1.0</guice.version>
         <ixa-pipe-tok.version>1.8.6</ixa-pipe-tok.version>
         <ixa-pipe-pos.version>1.5.2</ixa-pipe-pos.version>
